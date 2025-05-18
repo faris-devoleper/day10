@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WhatsApp Clone</title>
+    <link rel="stylesheet" href="style.css" />
+
+
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="profile">-❤ WhatsApp ❤-</div>
+            <div class="search">
+                <input type="search" placeholder="Search or start new chat">
+            </div>
+            <div class="contacts">
+                <div class="contact" data-name="My Love 😍">My Love 😍</div>
+                <div class="contact" data-name="Favas Khan 🔥">Favas Khan 🔥</div>
+                <div class="contact" data-name="Computer ❤">Computer ❤</div>
+                <div class="contact" data-name="Brother 😍">Brother 😍</div>
+                <div class="contact" data-name="Sister 😍">Sister 😍</div>
+                <div class="contact" data-name="Mother 😍">Mother 😍</div>
+                <div class="contact" data-name="Father 😍">Father 😍</div>
+                <div class="contact" data-name="Kuttas 😍">Kuttas 😍</div>
+            </div>
+        </div>
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="chat-header" id="chatHeader">Friends 🙏</div>
+            <div class="messages" id="messageContainer">
+            </div>
+            
+            <div class="chat-input">
+    
+              <button id="emojiToggle" class="emoji-toggle">😊</button>
+              <input type="text" id="chatInput" placeholder="Type a message" />
+          
+              <!-- Hidden file input for image -->
+              <input type="file" id="imageInput" accept="image/*" style="display: none;">
+              
+              <!-- Trigger button for file input -->
+              <button onclick="document.getElementById('imageInput').click()">📷</button>
+
+              <button id="recordBtn">🎤</button>
+                <audio width="30" height="10px" loop autoplay  id="audioPlayback" controls style="display:none;"></audio>
+          
+              <button id="sendBtn">Send🔥</button>
+            </div>
+          
+              
+              <div class="emoji-bar" id="emojiBar" style="display: none;">
+                <span class="emoji">😀</span>
+                <span class="emoji">😂</span>
+                <span class="emoji">❤</span>
+                <span class="emoji">👍</span>
+                <span class="emoji">🔥</span>
+                <span class="emoji">🙏</span>
+                <span class="emoji">😍</span>
+              </div>
+        </div>
+    </div>
+    </div>
+
+
+    </div>
+
+    <script>
+        const contacts = document.querySelectorAll('.contact');
+        const chatHeader = document.getElementById('chatHeader');
+        const messageContainer = document.getElementById('messageContainer');
+        const sendBtn = document.getElementById('sendBtn');
+        const input = document.getElementById('chatInput');
+        const emojiToggle = document.getElementById('emojiToggle');
+        const emojiBar = document.getElementById('emojiBar');
+        
+        const chats = {
+    "My Love 😍": [],
+    "Favas Khan 🔥": [],
+    "Computer ❤": [],
+    "Brother 😍": [],
+    "Sister 😍": [],
+    "Mother 😍": [],
+    "Kuttas 😍": []
+};
+    
+        let currentFriend = "Meta Ai";
+    
+        contacts.forEach(contact => {
+            contact.addEventListener('click', () => {
+                currentFriend = contact.dataset.name;
+                chatHeader.textContent = currentFriend;
+                renderMessages();
+            });
+        });
+    
+        sendBtn.addEventListener('click', () => {
+            const text = input.value.trim();
+            if (text !== '') {
+                chats[currentFriend].push({ type: 'sent', text });
+                input.value = '';
+                renderMessages();
+            }
+        });
+    
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') sendBtn.click();
+        });
+    
+        function renderMessages() {
+            messageContainer.innerHTML = '';
+            chats[currentFriend].forEach(msg => {
+                const div = document.createElement('div');
+                div.classList.add('message', msg.type);
+                div.textContent = msg.text;
+                messageContainer.appendChild(div);
+            });
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+    
+        // Toggle emoji bar
+        emojiToggle.addEventListener('click', () => {
+            emojiBar.style.display = emojiBar.style.display === 'none' ? 'flex' : 'none';
+        });
+    
+        // Click emoji to insert into input
+        document.querySelectorAll('.emoji').forEach(emoji => {
+            emoji.addEventListener('click', () => {
+                input.value += emoji.textContent;
+                input.focus();
+            });
+        });
+    
+        renderMessages();
+    </script>
+
+
+<script>
+   function renderMessages() {
+    messageContainer.innerHTML = '';
+    chats[currentFriend].forEach((msg, index) => {
+        const div = document.createElement('div');
+        div.classList.add('message', msg.type);
+        div.style.animationDelay = ${index * 0.1}s;
+
+        if (msg.audio) {
+            // Create an audio container to make it look like a message bubble
+            const audioContainer = document.createElement('div');
+            audioContainer.classList.add('audio-message');
+
+            const audioElem = document.createElement('audio');
+            audioElem.src = msg.audio;
+            audioElem.controls = true;
+
+            // Optional: You can customize the button for play
+            const playBtn = document.createElement('button');
+            playBtn.textContent = '▶';
+            playBtn.onclick = () => audioElem.play();  // Play when clicked
+
+            audioContainer.appendChild(playBtn);
+            audioContainer.appendChild(audioElem);
+
+            div.appendChild(audioContainer);
+        } else {
+            div.textContent = msg.text;
+        }
+
+        messageContainer.appendChild(div);
+    });
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+}
+    </script>
+  
+
+  <script>
+    let mediaRecorder;
+    let audioChunks = [];
+  
+    const recordBtn = document.getElementById("recordBtn");
+  
+    recordBtn.addEventListener("click", async () => {
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        recordBtn.textContent = "🎤";
+      } else {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
+  
+          mediaRecorder.ondataavailable = event => {
+            audioChunks.push(event.data);
+          };
+  
+          mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+            const audioUrl = URL.createObjectURL(audioBlob);
+  
+            chats[currentFriend].push({
+              type: "sent",
+              text: "",
+              audio: audioUrl
+            });
+  
+            renderMessages();
+          };
+  
+          mediaRecorder.start();
+          recordBtn.textContent = "⏹";
+        } catch (error) {
+          alert("Microphone permission denied or unsupported browser.");
+          console.error("Mic error:", error);
+        }
+      }
+    });
+  </script>
+
+
+
+
+</body>
+
+</html>
